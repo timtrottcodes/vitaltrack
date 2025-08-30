@@ -194,6 +194,8 @@ function updateCharts() {
   charts.steps.data.datasets[0].data = healthData.map((e) => e.steps);
 
   Object.values(charts).forEach((c) => c.update());
+
+  buildDataTable();
 }
 
 function movingAverage(data, windowSize) {
@@ -243,6 +245,50 @@ function buildPrintTable() {
           <td>${row.fat ?? ""}</td><td>${row.bone ?? ""}</td><td>${row.pulse ?? ""}</td>
           <td>${row.bpSys ?? ""}</td><td>${row.bpDia ?? ""}</td><td>${row.steps ?? ""}</td>
         `;
+    tbody.appendChild(tr);
+  });
+}
+
+function buildDataTable() {
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
+  healthData.forEach((row, index) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.date}</td>
+      <td>${row.weight ?? ""}</td>
+      <td>${row.bmi ?? ""}</td>
+      <td>${row.bmr ?? ""}</td>
+      <td>${row.muscle ?? ""}</td>
+      <td>${row.water ?? ""}</td>
+      <td>${row.fat ?? ""}</td>
+      <td>${row.bone ?? ""}</td>
+      <td>${row.pulse ?? ""}</td>
+      <td>${row.bpSys ?? ""}</td>
+      <td>${row.bpDia ?? ""}</td>
+      <td>${row.steps ?? ""}</td>
+    `;
+    tr.addEventListener("click", () => {
+      // Load values back into form for editing
+      dateInput.value = row.date;
+      document.getElementById("weight").value = row.weight ?? "";
+      document.getElementById("bmi").value = row.bmi ?? "";
+      document.getElementById("bmr").value = row.bmr ?? "";
+      document.getElementById("muscle").value = row.muscle ?? "";
+      document.getElementById("water").value = row.water ?? "";
+      document.getElementById("fat").value = row.fat ?? "";
+      document.getElementById("bone").value = row.bone ?? "";
+      document.getElementById("pulse").value = row.pulse ?? "";
+      document.getElementById("bpSys").value = row.bpSys ?? "";
+      document.getElementById("bpDia").value = row.bpDia ?? "";
+      document.getElementById("steps").value = row.steps ?? "";
+
+      // Optional: remove the row being edited
+      healthData.splice(index, 1);
+      localStorage.setItem("healthData", JSON.stringify(healthData));
+      updateCharts();
+      buildDataTable();
+    });
     tbody.appendChild(tr);
   });
 }
