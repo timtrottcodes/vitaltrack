@@ -56,10 +56,9 @@ cd vitaltrack
 vitaltrack/
 │
 ├── index.html       # Main app UI
-├── app.js           # Core logic (data handling, charts, localstorage, etc.)
-├── style.css        # Custom styles (Bootstrap + extras)
-├── README.md        # Project documentation
-└── /assets          # Any static assets (icons, logos, etc.)
+├── js/script.js           # Core logic (data handling, charts, localstorage, etc.)
+├── css/style.css        # Custom styles (Bootstrap + extras)
+└── README.md        # Project documentation
 ```
 
 ---

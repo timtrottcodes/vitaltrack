@@ -1,264 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Health Logger</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-light">
-
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Health Logger</a>
-    </div>
-  </nav>
-
-  <div class="container mt-4">
-    <!-- Input Form -->
-    <div class="card mb-4">
-      <div class="card-header">Log Health Data</div>
-      <div class="card-body">
-        <form id="logForm" class="row g-3">
-          <div class="col-md-3">
-            <label class="form-label">Date</label>
-            <input type="date" id="date" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Weight (kg)</label>
-            <input type="number" id="weight" step="0.1" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">BMI</label>
-            <input type="number" id="bmi" step="0.1" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">BMR</label>
-            <input type="number" id="bmr" step="1" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Muscle %</label>
-            <input type="number" id="muscle" step="0.1" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Water %</label>
-            <input type="number" id="water" step="0.1" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Fat %</label>
-            <input type="number" id="fat" step="0.1" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Bone Mass (kg)</label>
-            <input type="number" id="bone" step="0.1" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Pulse (bpm)</label>
-            <input type="number" id="pulse" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">BP (systolic)</label>
-            <input type="number" id="bpSys" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">BP (diastolic)</label>
-            <input type="number" id="bpDia" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Steps</label>
-            <input type="number" id="steps" class="form-control">
-          </div>
-          <div class="col-12">
-            <button type="submit" class="btn btn-success">Save Entry</button>
-            <button type="button" id="exportBtn" class="btn btn-secondary">Export JSON</button>
-            <button type="button" id="importBtn" class="btn btn-warning">Import JSON</button>
-            <input type="file" id="importFile" accept="application/json" style="display:none">
-          </div>
-        </form>
+  <head>
+    <meta charset="UTF-8" />
+    <title>VitalTrack - Your Personal Health &amp; Fitness Progress Tracker</title>
+    <meta name="description" content="Track weight, BMI, blood pressure, and more with VitalTrack. A simple, privacy-first health tracker that stores your data locally, helps you set goals, and visualize your progress with clear charts and reports.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/styles.css" rel="stylesheet" />
+  </head>
+  <body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">VitalTrack</a>
       </div>
-    </div>
+    </nav>
 
-    <!-- Charts Tabs -->
-    <div class="card">
-      <div class="card-header">Progress Charts</div>
-      <div class="card-body">
-        <ul class="nav nav-tabs" id="chartTabs" role="tablist">
-          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#weightTab">Weight</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bmiTab">BMI</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bmrTab">BMR</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#muscleTab">Muscle %</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#waterTab">Water %</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#fatTab">Fat %</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#boneTab">Bone Mass</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pulseTab">Pulse</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bpTab">Blood Pressure</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#stepsTab">Steps</button></li>
-        </ul>
-        <div class="tab-content mt-3">
-          <div class="tab-pane fade show active" id="weightTab"><canvas id="weightChart"></canvas></div>
-          <div class="tab-pane fade" id="bmiTab"><canvas id="bmiChart"></canvas></div>
-          <div class="tab-pane fade" id="bmrTab"><canvas id="bmrChart"></canvas></div>
-          <div class="tab-pane fade" id="muscleTab"><canvas id="muscleChart"></canvas></div>
-          <div class="tab-pane fade" id="waterTab"><canvas id="waterChart"></canvas></div>
-          <div class="tab-pane fade" id="fatTab"><canvas id="fatChart"></canvas></div>
-          <div class="tab-pane fade" id="boneTab"><canvas id="boneChart"></canvas></div>
-          <div class="tab-pane fade" id="pulseTab"><canvas id="pulseChart"></canvas></div>
-          <div class="tab-pane fade" id="bpTab"><canvas id="bpChart"></canvas></div>
-          <div class="tab-pane fade" id="stepsTab"><canvas id="stepsChart"></canvas></div>
+    <div class="container mt-4">
+      <!-- Input Form -->
+      <div class="card mb-4">
+        <div class="card-header">Log Health Data</div>
+        <div class="card-body">
+          <form id="logForm" class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Date</label>
+              <input type="date" id="date" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Weight (kg)</label>
+              <input type="number" id="weight" step="0.1" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">BMI</label>
+              <input type="number" id="bmi" step="0.1" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">BMR</label>
+              <input type="number" id="bmr" step="1" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Muscle %</label>
+              <input type="number" id="muscle" step="0.1" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Water %</label>
+              <input type="number" id="water" step="0.1" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Fat %</label>
+              <input type="number" id="fat" step="0.1" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Bone Mass (kg)</label>
+              <input type="number" id="bone" step="0.1" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Pulse (bpm)</label>
+              <input type="number" id="pulse" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">BP (systolic)</label>
+              <input type="number" id="bpSys" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">BP (diastolic)</label>
+              <input type="number" id="bpDia" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Steps</label>
+              <input type="number" id="steps" class="form-control" />
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-success">Save Entry</button>
+              <button type="button" id="exportBtn" class="btn btn-secondary">Export JSON</button>
+              <button type="button" id="importBtn" class="btn btn-warning">Import JSON</button>
+              <input type="file" id="importFile" accept="application/json" style="display: none" />
+              <button type="button" class="btn btn-dark" id="printBtn">Print Report</button>
+              <button type="button" class="btn btn-danger" id="clearBtn">Clear Data</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Charts Tabs -->
+      <div class="card">
+        <div class="card-header">Progress Charts</div>
+        <div class="card-body">
+          <ul class="nav nav-tabs" id="chartTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#weightTab">Weight</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bmiTab">BMI</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bmrTab">BMR</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#muscleTab">Muscle %</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#waterTab">Water %</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#fatTab">Fat %</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#boneTab">Bone Mass</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pulseTab">Pulse</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bpTab">Blood Pressure</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#stepsTab">Steps</button></li>
+          </ul>
+          <div class="tab-content mt-3">
+            <div class="tab-pane fade show active" id="weightTab"><canvas id="weightChart"></canvas></div>
+            <div class="tab-pane fade" id="bmiTab"><canvas id="bmiChart"></canvas></div>
+            <div class="tab-pane fade" id="bmrTab"><canvas id="bmrChart"></canvas></div>
+            <div class="tab-pane fade" id="muscleTab"><canvas id="muscleChart"></canvas></div>
+            <div class="tab-pane fade" id="waterTab"><canvas id="waterChart"></canvas></div>
+            <div class="tab-pane fade" id="fatTab"><canvas id="fatChart"></canvas></div>
+            <div class="tab-pane fade" id="boneTab"><canvas id="boneChart"></canvas></div>
+            <div class="tab-pane fade" id="pulseTab"><canvas id="pulseChart"></canvas></div>
+            <div class="tab-pane fade" id="bpTab"><canvas id="bpChart"></canvas></div>
+            <div class="tab-pane fade" id="stepsTab"><canvas id="stepsChart"></canvas></div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // === SETTINGS ===
-    const targetWeight = 75; // kg
-    const targetDate = "2025-12-31"; // yyyy-mm-dd
+    <!-- Print Area -->
+    <div id="printArea" class="p-4">
+      <h2>Health Report</h2>
+      <canvas id="printChart" height="100"></canvas>
+      <hr />
+      <h4>Raw Data</h4>
+      <div class="table-responsive">
+        <table class="table table-bordered" id="printTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Weight</th>
+              <th>BMI</th>
+              <th>BMR</th>
+              <th>Muscle %</th>
+              <th>Water %</th>
+              <th>Fat %</th>
+              <th>Bone</th>
+              <th>Pulse</th>
+              <th>BP Sys</th>
+              <th>BP Dia</th>
+              <th>Steps</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
 
-    const form = document.getElementById("logForm");
-    const dateInput = document.getElementById("date");
-    const exportBtn = document.getElementById("exportBtn");
-    const importBtn = document.getElementById("importBtn");
-    const importFile = document.getElementById("importFile");
+    <footer class="text-center mt-4 mb-2">
+      <small>
+        <a href="https://github.com/timtrottcodes/vitaltrack" target="_blank" rel="noopener noreferrer">
+          VitalTrack
+        </a> - Released under the MIT License
+      </small>
+    </footer>
 
-    // Prefill today's date
-    dateInput.valueAsDate = new Date();
-
-    // Load existing data
-    let healthData = JSON.parse(localStorage.getItem("healthData")) || [];
-
-    // Save new entry
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const entry = {
-        date: dateInput.value,
-        weight: parseFloat(document.getElementById("weight").value) || null,
-        bmi: parseFloat(document.getElementById("bmi").value) || null,
-        bmr: parseFloat(document.getElementById("bmr").value) || null,
-        muscle: parseFloat(document.getElementById("muscle").value) || null,
-        water: parseFloat(document.getElementById("water").value) || null,
-        fat: parseFloat(document.getElementById("fat").value) || null,
-        bone: parseFloat(document.getElementById("bone").value) || null,
-        pulse: parseFloat(document.getElementById("pulse").value) || null,
-        bpSys: parseFloat(document.getElementById("bpSys").value) || null,
-        bpDia: parseFloat(document.getElementById("bpDia").value) || null,
-        steps: parseFloat(document.getElementById("steps").value) || null,
-      };
-
-      healthData.push(entry);
-      localStorage.setItem("healthData", JSON.stringify(healthData));
-      updateCharts();
-      form.reset();
-      dateInput.valueAsDate = new Date();
-    });
-
-    // Export JSON
-    exportBtn.addEventListener("click", () => {
-      const blob = new Blob([JSON.stringify(healthData, null, 2)], {type: "application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "healthData.json";
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    // Import JSON
-    importBtn.addEventListener("click", () => importFile.click());
-
-    importFile.addEventListener("change", () => {
-      const file = importFile.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const importedData = JSON.parse(e.target.result);
-          if (Array.isArray(importedData)) {
-            healthData = importedData; // overwrite
-            localStorage.setItem("healthData", JSON.stringify(healthData));
-            updateCharts();
-            alert("Data imported successfully!");
-          } else {
-            alert("Invalid JSON format.");
-          }
-        } catch (err) {
-          alert("Error reading JSON: " + err.message);
-        }
-      };
-      reader.readAsText(file);
-      importFile.value = ""; // reset input
-    });
-
-    // === CHART CREATION ===
-    const charts = {
-      weight: new Chart(document.getElementById("weightChart"), { type: "line", data: { labels: [], datasets: [{ label: "Weight (kg)", data: [], borderColor: "blue" }, { label: "Target Path", data: [], borderColor: "red", borderDash: [5,5]} ] } }),
-      bmi: new Chart(document.getElementById("bmiChart"), { type: "line", data: { labels: [], datasets: [{ label: "BMI", data: [], borderColor: "green"}] } }),
-      bmr: new Chart(document.getElementById("bmrChart"), { type: "line", data: { labels: [], datasets: [{ label: "BMR", data: [], borderColor: "orange"}] } }),
-      muscle: new Chart(document.getElementById("muscleChart"), { type: "line", data: { labels: [], datasets: [{ label: "Muscle %", data: [], borderColor: "purple"}] } }),
-      water: new Chart(document.getElementById("waterChart"), { type: "line", data: { labels: [], datasets: [{ label: "Water %", data: [], borderColor: "teal"}] } }),
-      fat: new Chart(document.getElementById("fatChart"), { type: "line", data: { labels: [], datasets: [{ label: "Fat %", data: [], borderColor: "brown"}] } }),
-      bone: new Chart(document.getElementById("boneChart"), { type: "line", data: { labels: [], datasets: [{ label: "Bone Mass", data: [], borderColor: "gray"}] } }),
-      pulse: new Chart(document.getElementById("pulseChart"), { type: "line", data: { labels: [], datasets: [{ label: "Pulse", data: [], borderColor: "pink"}] } }),
-      bp: new Chart(document.getElementById("bpChart"), { type: "line", data: { labels: [], datasets: [{ label: "Systolic", data: [], borderColor: "red"}, { label: "Diastolic", data: [], borderColor: "blue"}] } }),
-      steps: new Chart(document.getElementById("stepsChart"), { type: "line", data: { labels: [], datasets: [{ label: "Steps", data: [], borderColor: "black"}] } }),
-    };
-
-    function updateCharts() {
-      const labels = healthData.map(e => e.date);
-
-      charts.weight.data.labels = labels;
-      charts.weight.data.datasets[0].data = healthData.map(e => e.weight);
-
-      // Target path for weight
-      if (healthData.length > 0) {
-        const startWeight = healthData[0].weight;
-        const startDate = new Date(healthData[0].date);
-        const endDate = new Date(targetDate);
-        const totalDays = (endDate - startDate) / (1000*60*60*24);
-
-        charts.weight.data.datasets[1].data = labels.map((d) => {
-          const currentDate = new Date(d);
-          const daysPassed = (currentDate - startDate) / (1000*60*60*24);
-          const progress = daysPassed / totalDays;
-          return startWeight + (targetWeight - startWeight) * progress;
-        });
-      }
-
-      charts.bmi.data.labels = labels;
-      charts.bmi.data.datasets[0].data = healthData.map(e => e.bmi);
-
-      charts.bmr.data.labels = labels;
-      charts.bmr.data.datasets[0].data = healthData.map(e => e.bmr);
-
-      charts.muscle.data.labels = labels;
-      charts.muscle.data.datasets[0].data = healthData.map(e => e.muscle);
-
-      charts.water.data.labels = labels;
-      charts.water.data.datasets[0].data = healthData.map(e => e.water);
-
-      charts.fat.data.labels = labels;
-      charts.fat.data.datasets[0].data = healthData.map(e => e.fat);
-
-      charts.bone.data.labels = labels;
-      charts.bone.data.datasets[0].data = healthData.map(e => e.bone);
-
-      charts.pulse.data.labels = labels;
-      charts.pulse.data.datasets[0].data = healthData.map(e => e.pulse);
-
-      charts.bp.data.labels = labels;
-      charts.bp.data.datasets[0].data = healthData.map(e => e.bpSys);
-      charts.bp.data.datasets[1].data = healthData.map(e => e.bpDia);
-
-      charts.steps.data.labels = labels;
-      charts.steps.data.datasets[0].data = healthData.map(e => e.steps);
-
-      Object.values(charts).forEach(c => c.update());
-    }
-
-    updateCharts();
-  </script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/script.js"></script>
+  </body>
 </html>
