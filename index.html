@@ -23,7 +23,7 @@
         <form id="logForm" class="row g-3">
           <div class="col-md-3">
             <label class="form-label">Date</label>
-            <input type="date" id="date" class="form-control" readonly>
+            <input type="date" id="date" class="form-control">
           </div>
           <div class="col-md-3">
             <label class="form-label">Weight (kg)</label>
@@ -77,15 +77,39 @@
       </div>
     </div>
 
-    <!-- Charts -->
+    <!-- Charts Tabs -->
     <div class="card">
       <div class="card-header">Progress Charts</div>
       <div class="card-body">
-        <canvas id="weightChart"></canvas>
+        <ul class="nav nav-tabs" id="chartTabs" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#weightTab">Weight</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bmiTab">BMI</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bmrTab">BMR</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#muscleTab">Muscle %</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#waterTab">Water %</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#fatTab">Fat %</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#boneTab">Bone Mass</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pulseTab">Pulse</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bpTab">Blood Pressure</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#stepsTab">Steps</button></li>
+        </ul>
+        <div class="tab-content mt-3">
+          <div class="tab-pane fade show active" id="weightTab"><canvas id="weightChart"></canvas></div>
+          <div class="tab-pane fade" id="bmiTab"><canvas id="bmiChart"></canvas></div>
+          <div class="tab-pane fade" id="bmrTab"><canvas id="bmrChart"></canvas></div>
+          <div class="tab-pane fade" id="muscleTab"><canvas id="muscleChart"></canvas></div>
+          <div class="tab-pane fade" id="waterTab"><canvas id="waterChart"></canvas></div>
+          <div class="tab-pane fade" id="fatTab"><canvas id="fatChart"></canvas></div>
+          <div class="tab-pane fade" id="boneTab"><canvas id="boneChart"></canvas></div>
+          <div class="tab-pane fade" id="pulseTab"><canvas id="pulseChart"></canvas></div>
+          <div class="tab-pane fade" id="bpTab"><canvas id="bpChart"></canvas></div>
+          <div class="tab-pane fade" id="stepsTab"><canvas id="stepsChart"></canvas></div>
+        </div>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // === SETTINGS ===
     const targetWeight = 75; // kg
@@ -138,62 +162,70 @@
       URL.revokeObjectURL(url);
     });
 
-    // === CHARTS ===
-    const ctx = document.getElementById("weightChart").getContext("2d");
-    const weightChart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: "Weight (kg)",
-            data: [],
-            borderColor: "blue",
-            fill: false,
-          },
-          {
-            label: "Target Path",
-            data: [],
-            borderColor: "red",
-            borderDash: [5, 5],
-            fill: false,
-          }
-        ],
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: { title: { display: true, text: "Date" } },
-          y: { title: { display: true, text: "Weight (kg)" } }
-        }
-      }
-    });
+    // === CHART CREATION ===
+    const charts = {
+      weight: new Chart(document.getElementById("weightChart"), { type: "line", data: { labels: [], datasets: [{ label: "Weight (kg)", data: [], borderColor: "blue" }, { label: "Target Path", data: [], borderColor: "red", borderDash: [5,5]} ] } }),
+      bmi: new Chart(document.getElementById("bmiChart"), { type: "line", data: { labels: [], datasets: [{ label: "BMI", data: [], borderColor: "green"}] } }),
+      bmr: new Chart(document.getElementById("bmrChart"), { type: "line", data: { labels: [], datasets: [{ label: "BMR", data: [], borderColor: "orange"}] } }),
+      muscle: new Chart(document.getElementById("muscleChart"), { type: "line", data: { labels: [], datasets: [{ label: "Muscle %", data: [], borderColor: "purple"}] } }),
+      water: new Chart(document.getElementById("waterChart"), { type: "line", data: { labels: [], datasets: [{ label: "Water %", data: [], borderColor: "teal"}] } }),
+      fat: new Chart(document.getElementById("fatChart"), { type: "line", data: { labels: [], datasets: [{ label: "Fat %", data: [], borderColor: "brown"}] } }),
+      bone: new Chart(document.getElementById("boneChart"), { type: "line", data: { labels: [], datasets: [{ label: "Bone Mass", data: [], borderColor: "gray"}] } }),
+      pulse: new Chart(document.getElementById("pulseChart"), { type: "line", data: { labels: [], datasets: [{ label: "Pulse", data: [], borderColor: "pink"}] } }),
+      bp: new Chart(document.getElementById("bpChart"), { type: "line", data: { labels: [], datasets: [{ label: "Systolic", data: [], borderColor: "red"}, { label: "Diastolic", data: [], borderColor: "blue"}] } }),
+      steps: new Chart(document.getElementById("stepsChart"), { type: "line", data: { labels: [], datasets: [{ label: "Steps", data: [], borderColor: "black"}] } }),
+    };
 
     function updateCharts() {
       const labels = healthData.map(e => e.date);
-      const weights = healthData.map(e => e.weight);
 
-      weightChart.data.labels = labels;
-      weightChart.data.datasets[0].data = weights;
+      charts.weight.data.labels = labels;
+      charts.weight.data.datasets[0].data = healthData.map(e => e.weight);
 
-      // target path
-      if (weights.length > 0) {
-        const startWeight = weights[0];
+      // Target path for weight
+      if (healthData.length > 0) {
+        const startWeight = healthData[0].weight;
         const startDate = new Date(healthData[0].date);
         const endDate = new Date(targetDate);
         const totalDays = (endDate - startDate) / (1000*60*60*24);
 
-        const targetData = labels.map((d, i) => {
+        charts.weight.data.datasets[1].data = labels.map((d) => {
           const currentDate = new Date(d);
           const daysPassed = (currentDate - startDate) / (1000*60*60*24);
           const progress = daysPassed / totalDays;
           return startWeight + (targetWeight - startWeight) * progress;
         });
-
-        weightChart.data.datasets[1].data = targetData;
       }
 
-      weightChart.update();
+      charts.bmi.data.labels = labels;
+      charts.bmi.data.datasets[0].data = healthData.map(e => e.bmi);
+
+      charts.bmr.data.labels = labels;
+      charts.bmr.data.datasets[0].data = healthData.map(e => e.bmr);
+
+      charts.muscle.data.labels = labels;
+      charts.muscle.data.datasets[0].data = healthData.map(e => e.muscle);
+
+      charts.water.data.labels = labels;
+      charts.water.data.datasets[0].data = healthData.map(e => e.water);
+
+      charts.fat.data.labels = labels;
+      charts.fat.data.datasets[0].data = healthData.map(e => e.fat);
+
+      charts.bone.data.labels = labels;
+      charts.bone.data.datasets[0].data = healthData.map(e => e.bone);
+
+      charts.pulse.data.labels = labels;
+      charts.pulse.data.datasets[0].data = healthData.map(e => e.pulse);
+
+      charts.bp.data.labels = labels;
+      charts.bp.data.datasets[0].data = healthData.map(e => e.bpSys);
+      charts.bp.data.datasets[1].data = healthData.map(e => e.bpDia);
+
+      charts.steps.data.labels = labels;
+      charts.steps.data.datasets[0].data = healthData.map(e => e.steps);
+
+      Object.values(charts).forEach(c => c.update());
     }
 
     updateCharts();
