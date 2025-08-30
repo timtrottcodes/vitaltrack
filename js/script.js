@@ -3,11 +3,11 @@ const targetWeight = 80; // kg
 const targetDate = "2025-12-31"; // yyyy-mm-dd
 
 const healthyRanges = {
-  weight: { min: 60, max: 80 },  // kg
+  weight: { min: 60, max: 80 }, // kg
   bmi: { min: 18.5, max: 24.9 },
   bpSystolic: { min: 90, max: 120 },
   bpDiastolic: { min: 60, max: 80 },
-  pulse: { min: 60, max: 100 }
+  pulse: { min: 60, max: 100 },
 };
 
 const form = document.getElementById("logForm");
@@ -17,6 +17,7 @@ const importBtn = document.getElementById("importBtn");
 const importFile = document.getElementById("importFile");
 const printBtn = document.getElementById("printBtn");
 const clearBtn = document.getElementById("clearBtn");
+const darkModeToggle = document.getElementById("darkModeToggle");
 
 let printChartInstance = null;
 
@@ -26,6 +27,27 @@ dateInput.valueAsDate = new Date();
 // Load existing data
 let healthData = JSON.parse(localStorage.getItem("healthData")) || [];
 sortDataByDate();
+
+// Load saved preference or system preference
+const savedMode = localStorage.getItem("darkMode");
+if (savedMode === "true") {
+  document.body.classList.add("dark-mode");
+  darkModeToggle.checked = true;
+} else if (!savedMode && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+  document.body.classList.add("dark-mode");
+  darkModeToggle.checked = true;
+}
+
+// Toggle dark mode
+darkModeToggle.addEventListener("change", () => {
+  if (darkModeToggle.checked) {
+    document.body.classList.add("dark-mode");
+    localStorage.setItem("darkMode", "true");
+  } else {
+    document.body.classList.remove("dark-mode");
+    localStorage.setItem("darkMode", "false");
+  }
+});
 
 // Save new entry
 form.addEventListener("submit", (e) => {
@@ -45,7 +67,7 @@ form.addEventListener("submit", (e) => {
     bpDia: parseFloat(document.getElementById("bpDia").value) || null,
     steps: parseFloat(document.getElementById("steps").value) || null,
     cholesterol: parseFloat(document.getElementById("cholesterol").value) || null,
-    notes: document.getElementById("notes").value || ""
+    notes: document.getElementById("notes").value || "",
   };
 
   healthData.push(entry);
@@ -112,9 +134,13 @@ printBtn.addEventListener("click", () => {
 
 // === CHART CREATION ===
 const rangeBackgroundPlugin = {
-  id: 'rangeBackground',
+  id: "rangeBackground",
   beforeDraw: (chart) => {
-    const { ctx, chartArea: { top, bottom, left, right }, scales } = chart;
+    const {
+      ctx,
+      chartArea: { top, bottom, left, right },
+      scales,
+    } = chart;
 
     const metric = chart.config._config.metric;
     if (!healthyRanges[metric]) return;
@@ -137,10 +163,10 @@ const rangeBackgroundPlugin = {
     const yMax = scales.y.getPixelForValue(bandMin);
 
     ctx.save();
-    ctx.fillStyle = 'rgba(0, 200, 0, 0.1)'; // light green
+    ctx.fillStyle = "rgba(0, 200, 0, 0.1)"; // light green
     ctx.fillRect(left, yMin, right - left, yMax - yMin);
     ctx.restore();
-  }
+  },
 };
 Chart.register(rangeBackgroundPlugin);
 
@@ -154,7 +180,7 @@ const charts = {
         { label: "Target Path", data: [], borderColor: "red", borderDash: [5, 5] },
       ],
     },
-    metric: 'weight'
+    metric: "weight",
   }),
   bmi: new Chart(document.getElementById("bmiChart"), {
     type: "line",
@@ -165,14 +191,14 @@ const charts = {
         { label: "BMI Trend (5-point avg)", data: [], borderColor: "orange", borderDash: [5, 5], fill: false },
       ],
     },
-    metric: 'bmi'
+    metric: "bmi",
   }),
   bmr: new Chart(document.getElementById("bmrChart"), { type: "line", data: { labels: [], datasets: [{ label: "BMR", data: [], borderColor: "orange" }] } }),
   muscle: new Chart(document.getElementById("muscleChart"), { type: "line", data: { labels: [], datasets: [{ label: "Muscle %", data: [], borderColor: "purple" }] } }),
   water: new Chart(document.getElementById("waterChart"), { type: "line", data: { labels: [], datasets: [{ label: "Water %", data: [], borderColor: "teal" }] } }),
   fat: new Chart(document.getElementById("fatChart"), { type: "line", data: { labels: [], datasets: [{ label: "Fat %", data: [], borderColor: "brown" }] } }),
   bone: new Chart(document.getElementById("boneChart"), { type: "line", data: { labels: [], datasets: [{ label: "Bone Mass", data: [], borderColor: "gray" }] } }),
-  pulse: new Chart(document.getElementById("pulseChart"), { type: "line", data: { labels: [], datasets: [{ label: "Pulse", data: [], borderColor: "pink" }] }, metric: 'pulse' }),
+  pulse: new Chart(document.getElementById("pulseChart"), { type: "line", data: { labels: [], datasets: [{ label: "Pulse", data: [], borderColor: "pink" }] }, metric: "pulse" }),
   bp: new Chart(document.getElementById("bpChart"), {
     type: "line",
     data: {
@@ -184,7 +210,8 @@ const charts = {
     },
   }),
   steps: new Chart(document.getElementById("stepsChart"), { type: "line", data: { labels: [], datasets: [{ label: "Steps", data: [], borderColor: "black" }] } }),
-  cholesterol: new Chart(document.getElementById("cholesterolChart"), { // NEW
+  cholesterol: new Chart(document.getElementById("cholesterolChart"), {
+    // NEW
     type: "line",
     data: { labels: [], datasets: [{ label: "Total Cholesterol (mg/dL)", data: [], borderColor: "goldenrod" }] },
   }),
@@ -197,7 +224,7 @@ function updateCharts() {
   charts.weight.data.datasets[0].data = healthData.map((e) => e.weight);
 
   // Target path for weight
-  const weightData = healthData.filter(row => row.weight != null && row.weight !== "");
+  const weightData = healthData.filter((row) => row.weight != null && row.weight !== "");
   if (weightData.length > 0) {
     const startWeight = weightData[0].weight;
     const startDate = new Date(weightData[0].date);
@@ -221,33 +248,33 @@ function updateCharts() {
   charts.bmi.data.datasets[0].data = bmis;
   charts.bmi.data.datasets[1].data = movingAverage(bmis, 5);
 
-  charts.bmr.data.labels = getMetricLabels('bmr');
-  charts.bmr.data.datasets[0].data = getMetricData('bmr');
+  charts.bmr.data.labels = getMetricLabels("bmr");
+  charts.bmr.data.datasets[0].data = getMetricData("bmr");
 
-  charts.muscle.data.labels = getMetricLabels('muscle');
-  charts.muscle.data.datasets[0].data = getMetricData('muscle');
+  charts.muscle.data.labels = getMetricLabels("muscle");
+  charts.muscle.data.datasets[0].data = getMetricData("muscle");
 
-  charts.water.data.labels = getMetricLabels('water');
-  charts.water.data.datasets[0].data = getMetricData('water');
+  charts.water.data.labels = getMetricLabels("water");
+  charts.water.data.datasets[0].data = getMetricData("water");
 
-  charts.fat.data.labels = getMetricLabels('fat');
-  charts.fat.data.datasets[0].data = getMetricData('fat');
+  charts.fat.data.labels = getMetricLabels("fat");
+  charts.fat.data.datasets[0].data = getMetricData("fat");
 
-  charts.bone.data.labels = getMetricLabels('bone');
-  charts.bone.data.datasets[0].data = getMetricData('bone');
+  charts.bone.data.labels = getMetricLabels("bone");
+  charts.bone.data.datasets[0].data = getMetricData("bone");
 
-  charts.pulse.data.labels = getMetricLabels('pulse');
-  charts.pulse.data.datasets[0].data = getMetricData('pulse');
+  charts.pulse.data.labels = getMetricLabels("pulse");
+  charts.pulse.data.datasets[0].data = getMetricData("pulse");
 
-  charts.bp.data.labels = getMetricLabels('bpSys');
-  charts.bp.data.datasets[0].data = getMetricData('bpSys');
-  charts.bp.data.datasets[1].data = getMetricData('bpDia');
+  charts.bp.data.labels = getMetricLabels("bpSys");
+  charts.bp.data.datasets[0].data = getMetricData("bpSys");
+  charts.bp.data.datasets[1].data = getMetricData("bpDia");
 
-  charts.steps.data.labels = getMetricLabels('steps');
-  charts.steps.data.datasets[0].data = getMetricData('steps');
+  charts.steps.data.labels = getMetricLabels("steps");
+  charts.steps.data.datasets[0].data = getMetricData("steps");
 
-  charts.cholesterol.data.labels = getMetricLabels('cholesterol');
-  charts.cholesterol.data.datasets[0].data = getMetricData('cholesterol');
+  charts.cholesterol.data.labels = getMetricLabels("cholesterol");
+  charts.cholesterol.data.datasets[0].data = getMetricData("cholesterol");
 
   Object.values(charts).forEach((c) => c.update());
 
@@ -258,8 +285,8 @@ function movingAverage(data, windowSize) {
   let result = [];
   for (let i = 0; i < data.length; i++) {
     const start = Math.max(0, i - windowSize + 1);
-    const subset = data.slice(start, i + 1).filter(v => v != null && v !== "");
-    
+    const subset = data.slice(start, i + 1).filter((v) => v != null && v !== "");
+
     if (subset.length === 0) {
       result.push(null); // nothing to average here
     } else {
@@ -276,12 +303,10 @@ function buildPrintChart() {
 
   // Helper to filter out nulls
   function filterData(metric) {
-    const filtered = healthData
-      .filter(e => e[metric] != null)
-      .map(e => ({ date: e.date, value: e[metric] }));
+    const filtered = healthData.filter((e) => e[metric] != null).map((e) => ({ date: e.date, value: e[metric] }));
     return {
-      labels: filtered.map(e => e.date),
-      data: filtered.map(e => e.value)
+      labels: filtered.map((e) => e.date),
+      data: filtered.map((e) => e.value),
     };
   }
 
@@ -381,14 +406,12 @@ function sortDataByDate() {
 
 function getMetricData(metric) {
   // Only include entries where the value is defined and not null
-  return healthData
-    .map(e => e[metric] != null ? e[metric] : null);
+  return healthData.map((e) => (e[metric] != null ? e[metric] : null));
 }
 
 function getMetricLabels(metric) {
   // Only include labels where the metric has a value
-  return healthData
-    .map(e => e[metric] != null ? e.date : null);
+  return healthData.map((e) => (e[metric] != null ? e.date : null));
 }
 
 updateCharts();
