@@ -72,6 +72,8 @@
           <div class="col-12">
             <button type="submit" class="btn btn-success">Save Entry</button>
             <button type="button" id="exportBtn" class="btn btn-secondary">Export JSON</button>
+            <button type="button" id="importBtn" class="btn btn-warning">Import JSON</button>
+            <input type="file" id="importFile" accept="application/json" style="display:none">
           </div>
         </form>
       </div>
@@ -118,6 +120,8 @@
     const form = document.getElementById("logForm");
     const dateInput = document.getElementById("date");
     const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const importFile = document.getElementById("importFile");
 
     // Prefill today's date
     dateInput.valueAsDate = new Date();
@@ -160,6 +164,32 @@
       a.download = "healthData.json";
       a.click();
       URL.revokeObjectURL(url);
+    });
+
+    // Import JSON
+    importBtn.addEventListener("click", () => importFile.click());
+
+    importFile.addEventListener("change", () => {
+      const file = importFile.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (Array.isArray(importedData)) {
+            healthData = importedData; // overwrite
+            localStorage.setItem("healthData", JSON.stringify(healthData));
+            updateCharts();
+            alert("Data imported successfully!");
+          } else {
+            alert("Invalid JSON format.");
+          }
+        } catch (err) {
+          alert("Error reading JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+      importFile.value = ""; // reset input
     });
 
     // === CHART CREATION ===
