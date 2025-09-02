@@ -82,9 +82,17 @@
               <label for="cholesterol" class="form-label">Total Cholesterol (mmol/l)</label>
               <input type="number" class="form-control" id="cholesterol" step="0.01" />
             </div>
-            <div class="col-md-9">
+            <div class="col-md-3">
               <label class="form-label">Notes</label>
               <textarea id="notes" class="form-control" rows="1" placeholder="Optional notes about this entry"></textarea>
+            </div>
+            <div class="col-md-3">
+              <label for="startDate" class="form-label">Start Date</label>
+              <input type="date" id="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label for="endDate" class="form-label">End Date</label>
+              <input type="date" id="endDate" class="form-control" />
             </div>
 
             <div class="col-12">
@@ -171,7 +179,7 @@
           <thead>
             <tr>
               <th>Date</th>
-              <th><span style="color: blue">Weight (kg)</span></th>
+              <th><span style="color: blue !important">Weight (kg)</span></th>
               <th>BMI</th>
               <th>BMR</th>
               <th>Muscle %</th>
@@ -179,8 +187,8 @@
               <th>Fat %</th>
               <th>Bone (kg)</th>
               <th>Pulse</th>
-              <th><span style="color: red">BP Sys</span></th>
-              <th><span style="color: green">BP Dia</span></th>
+              <th><span style="color: red !important">BP Sys</span></th>
+              <th><span style="color: green !important">BP Dia</span></th>
               <th>Cholesterol (mmol/l)</th>
               <th>Steps</th>
               <th>Notes</th>

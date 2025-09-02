@@ -51,6 +51,7 @@ form.addEventListener("submit", (e) => {
   healthData.push(entry);
   sortDataByDate();
   localStorage.setItem("healthData", JSON.stringify(healthData));
+  initializeDateRange(healthData);
   updateCharts();
   form.reset();
   dateInput.valueAsDate = new Date();
@@ -109,6 +110,9 @@ printBtn.addEventListener("click", () => {
   buildPrintChart();
   setTimeout(() => window.print(), 500);
 });
+
+document.getElementById("startDate").addEventListener("change", updateCharts);
+document.getElementById("endDate").addEventListener("change", updateCharts);
 
 // === CHART CREATION ===
 const rangeBackgroundPlugin = {
@@ -197,7 +201,6 @@ const charts = {
 };
 
 function updateCharts() {
-
   const weightData = getMetricData("weight");
   charts.weight.data.labels = getMetricLabels("weight");
   charts.weight.data.datasets[0].data = weightData.map((e) => e.weight);
@@ -381,14 +384,23 @@ function sortDataByDate() {
   healthData.sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
+function filterDataByDateRange(data, startDate, endDate) {
+  return data.filter((entry) => {
+    const entryDate = new Date(entry.date);
+    return (!startDate || entryDate >= startDate) && (!endDate || entryDate <= endDate);
+  });
+}
+
 function getMetricData(metric) {
-  // Only include entries where the value is defined and not null
-  return healthData.filter((e) => e[metric] != null && e[metric] !== "");
+  const startDate = new Date(document.getElementById("startDate").value);
+  const endDate = new Date(document.getElementById("endDate").value);
+  const filteredData = filterDataByDateRange(healthData, startDate, endDate);
+
+  return filteredData.filter((e) => e[metric] != null && e[metric] !== "");
 }
 
 function getMetricLabels(metric) {
-  // Only include labels where the metric has a value
-  const data =  getMetricData(metric);
+  const data = getMetricData(metric);
   return data.map((e) => (e[metric] != null ? e.date : null));
 }
 
@@ -465,5 +477,23 @@ function applyChartTheme(isDark) {
   }
 }
 
+function initializeDateRange(data) {
+  if (!data || data.length === 0) return;
+
+  const dates = data.map(e => new Date(e.date));
+  const minDate = new Date(Math.min(...dates));
+  const maxDate = new Date(Math.max(...dates));
+
+  const startInput = document.getElementById("startDate");
+  const endInput = document.getElementById("endDate");
+
+  // Format YYYY-MM-DD for input[type="date"]
+  const formatDate = (d) => d.toISOString().split("T")[0];
+
+  startInput.value = formatDate(minDate);
+  endInput.value = formatDate(maxDate);
+}
+
+initializeDateRange(healthData);
 updateCharts();
 initDarkMode();

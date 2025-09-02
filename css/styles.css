@@ -91,6 +91,8 @@ body.dark-mode .table-hover tbody tr:hover {
   #printArea,
   #printArea * {
     visibility: visible;
+    background-color: #fff !important;
+    color: #111 !important;
   }
   #printArea {
     position: absolute;
