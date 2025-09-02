@@ -17,7 +17,6 @@ const importBtn = document.getElementById("importBtn");
 const importFile = document.getElementById("importFile");
 const printBtn = document.getElementById("printBtn");
 const clearBtn = document.getElementById("clearBtn");
-const darkModeToggle = document.getElementById("darkModeToggle");
 
 let printChartInstance = null;
 
@@ -27,27 +26,6 @@ dateInput.valueAsDate = new Date();
 // Load existing data
 let healthData = JSON.parse(localStorage.getItem("healthData")) || [];
 sortDataByDate();
-
-// Load saved preference or system preference
-const savedMode = localStorage.getItem("darkMode");
-if (savedMode === "true") {
-  document.body.classList.add("dark-mode");
-  darkModeToggle.checked = true;
-} else if (!savedMode && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-  document.body.classList.add("dark-mode");
-  darkModeToggle.checked = true;
-}
-
-// Toggle dark mode
-darkModeToggle.addEventListener("change", () => {
-  if (darkModeToggle.checked) {
-    document.body.classList.add("dark-mode");
-    localStorage.setItem("darkMode", "true");
-  } else {
-    document.body.classList.remove("dark-mode");
-    localStorage.setItem("darkMode", "false");
-  }
-});
 
 // Save new entry
 form.addEventListener("submit", (e) => {
@@ -173,6 +151,7 @@ Chart.register(rangeBackgroundPlugin);
 const charts = {
   weight: new Chart(document.getElementById("weightChart"), {
     type: "line",
+    spanGaps: true,
     data: {
       labels: [],
       datasets: [
@@ -218,20 +197,19 @@ const charts = {
 };
 
 function updateCharts() {
-  const labels = healthData.map((e) => e.date);
 
-  charts.weight.data.labels = labels;
-  charts.weight.data.datasets[0].data = healthData.map((e) => e.weight);
+  const weightData = getMetricData("weight");
+  charts.weight.data.labels = getMetricLabels("weight");
+  charts.weight.data.datasets[0].data = weightData.map((e) => e.weight);
 
   // Target path for weight
-  const weightData = healthData.filter((row) => row.weight != null && row.weight !== "");
   if (weightData.length > 0) {
     const startWeight = weightData[0].weight;
     const startDate = new Date(weightData[0].date);
     const endDate = new Date(targetDate);
     const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
-    charts.weight.data.datasets[1].data = labels.map((d) => {
+    charts.weight.data.datasets[1].data = charts.weight.data.labels.map((d) => {
       const currentDate = new Date(d);
       if (currentDate < startDate || totalDays <= 0) return null; // outside target range
       const daysPassed = (currentDate - startDate) / (1000 * 60 * 60 * 24);
@@ -243,38 +221,37 @@ function updateCharts() {
   }
 
   const bmis = healthData.map((e) => e.bmi);
-
-  charts.bmi.data.labels = labels;
-  charts.bmi.data.datasets[0].data = bmis;
+  charts.bmi.data.labels = getMetricLabels("bmi");
+  charts.bmi.data.datasets[0].data = getMetricData("bmi").map((e) => e.bmi);
   charts.bmi.data.datasets[1].data = movingAverage(bmis, 5);
 
   charts.bmr.data.labels = getMetricLabels("bmr");
-  charts.bmr.data.datasets[0].data = getMetricData("bmr");
+  charts.bmr.data.datasets[0].data = getMetricData("bmr").map((e) => e.bmr);
 
   charts.muscle.data.labels = getMetricLabels("muscle");
-  charts.muscle.data.datasets[0].data = getMetricData("muscle");
+  charts.muscle.data.datasets[0].data = getMetricData("muscle").map((e) => e.muscle);
 
   charts.water.data.labels = getMetricLabels("water");
-  charts.water.data.datasets[0].data = getMetricData("water");
+  charts.water.data.datasets[0].data = getMetricData("water").map((e) => e.water);
 
   charts.fat.data.labels = getMetricLabels("fat");
-  charts.fat.data.datasets[0].data = getMetricData("fat");
+  charts.fat.data.datasets[0].data = getMetricData("fat").map((e) => e.fat);
 
   charts.bone.data.labels = getMetricLabels("bone");
-  charts.bone.data.datasets[0].data = getMetricData("bone");
+  charts.bone.data.datasets[0].data = getMetricData("bone").map((e) => e.bone);
 
   charts.pulse.data.labels = getMetricLabels("pulse");
-  charts.pulse.data.datasets[0].data = getMetricData("pulse");
+  charts.pulse.data.datasets[0].data = getMetricData("pulse").map((e) => e.pulse);
 
   charts.bp.data.labels = getMetricLabels("bpSys");
-  charts.bp.data.datasets[0].data = getMetricData("bpSys");
-  charts.bp.data.datasets[1].data = getMetricData("bpDia");
+  charts.bp.data.datasets[0].data = getMetricData("bpSys").map((e) => e.bpSys);
+  charts.bp.data.datasets[1].data = getMetricData("bpDia").map((e) => e.bpDia);
 
   charts.steps.data.labels = getMetricLabels("steps");
-  charts.steps.data.datasets[0].data = getMetricData("steps");
+  charts.steps.data.datasets[0].data = getMetricData("steps").map((e) => e.steps);
 
   charts.cholesterol.data.labels = getMetricLabels("cholesterol");
-  charts.cholesterol.data.datasets[0].data = getMetricData("cholesterol");
+  charts.cholesterol.data.datasets[0].data = getMetricData("cholesterol").map((e) => e.cholesterol);
 
   Object.values(charts).forEach((c) => c.update());
 
@@ -406,12 +383,87 @@ function sortDataByDate() {
 
 function getMetricData(metric) {
   // Only include entries where the value is defined and not null
-  return healthData.map((e) => (e[metric] != null ? e[metric] : null));
+  return healthData.filter((e) => e[metric] != null && e[metric] !== "");
 }
 
 function getMetricLabels(metric) {
   // Only include labels where the metric has a value
-  return healthData.map((e) => (e[metric] != null ? e.date : null));
+  const data =  getMetricData(metric);
+  return data.map((e) => (e[metric] != null ? e.date : null));
+}
+
+function initDarkMode() {
+  const toggleElement = document.getElementById("darkModeToggle");
+  const savedMode = localStorage.getItem("darkMode");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  function setDarkMode(enabled) {
+    document.body.classList.toggle("dark-mode", enabled);
+    toggleElement.checked = enabled;
+    localStorage.setItem("darkMode", enabled ? "true" : "false");
+    applyChartTheme(enabled);
+  }
+
+  // Initial state: saved preference > system preference > default light
+  if (savedMode !== null) {
+    setDarkMode(savedMode === "true");
+  } else {
+    setDarkMode(prefersDark);
+  }
+
+  // Toggle listener
+  toggleElement.addEventListener("change", () => {
+    setDarkMode(toggleElement.checked);
+  });
+}
+
+function applyChartTheme(isDark) {
+  if (isDark) {
+    Chart.defaults.color = "#e0e0e0"; // text, labels, ticks
+    Chart.defaults.borderColor = "#555"; // grid lines
+
+    Object.values(charts).forEach((chart) => {
+      if (!chart) return;
+      chart.options.plugins.legend.labels.color = "#e0e0e0";
+      chart.options.scales.x.ticks.color = "#e0e0e0";
+      chart.options.scales.y.ticks.color = "#e0e0e0";
+      chart.options.scales.x.grid.color = "rgba(255,255,255,0.1)";
+      chart.options.scales.y.grid.color = "rgba(255,255,255,0.1)";
+      chart.update();
+    });
+
+    if (printChartInstance) {
+      printChartInstance.options.plugins.legend.labels.color = "#e0e0e0";
+      printChartInstance.options.scales.x.ticks.color = "#e0e0e0";
+      printChartInstance.options.scales.y.ticks.color = "#e0e0e0";
+      printChartInstance.options.scales.x.grid.color = "rgba(255,255,255,0.1)";
+      printChartInstance.options.scales.y.grid.color = "rgba(255,255,255,0.1)";
+      printChartInstance.update();
+    }
+  } else {
+    Chart.defaults.color = "#333";
+    Chart.defaults.borderColor = "#ccc";
+
+    Object.values(charts).forEach((chart) => {
+      if (!chart) return;
+      chart.options.plugins.legend.labels.color = "#333";
+      chart.options.scales.x.ticks.color = "#333";
+      chart.options.scales.y.ticks.color = "#333";
+      chart.options.scales.x.grid.color = "rgba(0,0,0,0.05)";
+      chart.options.scales.y.grid.color = "rgba(0,0,0,0.05)";
+      chart.update();
+    });
+
+    if (printChartInstance) {
+      printChartInstance.options.plugins.legend.labels.color = "#333";
+      printChartInstance.options.scales.x.ticks.color = "#333";
+      printChartInstance.options.scales.y.ticks.color = "#333";
+      printChartInstance.options.scales.x.grid.color = "rgba(0,0,0,0.05)";
+      printChartInstance.options.scales.y.grid.color = "rgba(0,0,0,0.05)";
+      printChartInstance.update();
+    }
+  }
 }
 
 updateCharts();
+initDarkMode();
