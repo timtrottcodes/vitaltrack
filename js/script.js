@@ -326,7 +326,7 @@ function buildPrintTable() {
           <td>${row.bmr ?? ""}</td><td>${row.muscle ?? ""}</td><td>${row.water ?? ""}</td>
           <td>${row.fat ?? ""}</td><td>${row.bone ?? ""}</td><td>${row.pulse ?? ""}</td>
           <td>${row.bpSys ?? ""}</td><td>${row.bpDia ?? ""}</td><td>${row.cholesterol ?? ""}</td>
-          <td>${row.steps ?? ""}</td><td>${row.notes ?? ""}</td>
+          <td>${row.steps ?? ""}</td><td>${row.heartP ?? ""}</td><td>${row.notes ?? ""}</td>
         `;
     tbody.appendChild(tr);
   });
