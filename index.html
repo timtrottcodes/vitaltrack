@@ -63,7 +63,7 @@
               <input type="number" id="bone" step="0.1" class="form-control" />
             </div>
             <div class="col-md-3">
-              <label class="form-label">Pulse (bpm)</label>
+              <label class="form-label"><accr title="Resting Heart Rate">Resting Heart Rate (bpm)</label>
               <input type="number" id="pulse" class="form-control" />
             </div>
             <div class="col-md-3">
@@ -75,24 +75,20 @@
               <input type="number" id="bpDia" class="form-control" />
             </div>
             <div class="col-md-3">
-              <label class="form-label">Steps</label>
+              <label class="form-label">Steps (week)</label>
               <input type="number" id="steps" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Heart Points (week)</label>
+              <input type="number" id="heartP" class="form-control" />
             </div>
             <div class="col-md-3">
               <label for="cholesterol" class="form-label">Total Cholesterol (mmol/l)</label>
               <input type="number" class="form-control" id="cholesterol" step="0.01" />
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
               <label class="form-label">Notes</label>
               <textarea id="notes" class="form-control" rows="1" placeholder="Optional notes about this entry"></textarea>
-            </div>
-            <div class="col-md-3">
-              <label for="startDate" class="form-label">Start Date</label>
-              <input type="date" id="startDate" class="form-control" />
-            </div>
-            <div class="col-md-3">
-              <label for="endDate" class="form-label">End Date</label>
-              <input type="date" id="endDate" class="form-control" />
             </div>
 
             <div class="col-12">
@@ -119,7 +115,7 @@
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#waterTab">Water %</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#fatTab">Fat %</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#boneTab">Bone Mass</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pulseTab">Pulse</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pulseTab">RHR</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bpTab">Blood Pressure</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#cholesterolTab">Cholesterol</button></li>
             <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#stepsTab">Steps</button></li>
@@ -150,11 +146,12 @@
                       <th>Water %</th>
                       <th>Fat %</th>
                       <th>Bone</th>
-                      <th>Pulse</th>
+                      <th>RHR</th>
                       <th>BP Sys</th>
                       <th>BP Dia</th>
                       <th>Cholesterol</th>
                       <th>Steps</th>
+                      <th>Heart Points</th>
                       <th>Notes</th>
                     </tr>
                   </thead>
@@ -162,6 +159,18 @@
                 </table>
               </div>
               <small class="text-muted">Click a row to edit its values in the Log Health Data form.</small>
+            </div>
+          </div>
+
+          <div style="font-weight:bold; margin-top:1em">Chart Range</div>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="startDate" class="form-label">Start Date</label>
+              <input type="date" id="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label for="endDate" class="form-label">End Date</label>
+              <input type="date" id="endDate" class="form-control" />
             </div>
           </div>
         </div>
@@ -186,11 +195,12 @@
               <th>Water %</th>
               <th>Fat %</th>
               <th>Bone (kg)</th>
-              <th>Pulse</th>
+              <th>RHR</th>
               <th><span style="color: red !important">BP Sys</span></th>
               <th><span style="color: green !important">BP Dia</span></th>
               <th>Cholesterol (mmol/l)</th>
               <th>Steps</th>
+              <th>Heart Points</th>
               <th>Notes</th>
             </tr>
           </thead>

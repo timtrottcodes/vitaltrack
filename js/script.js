@@ -8,6 +8,7 @@ const healthyRanges = {
   bpSystolic: { min: 90, max: 120 },
   bpDiastolic: { min: 60, max: 80 },
   pulse: { min: 60, max: 100 },
+  heartP: { min: 10, max: 60 },
 };
 
 const form = document.getElementById("logForm");
@@ -44,6 +45,7 @@ form.addEventListener("submit", (e) => {
     bpSys: parseFloat(document.getElementById("bpSys").value) || null,
     bpDia: parseFloat(document.getElementById("bpDia").value) || null,
     steps: parseFloat(document.getElementById("steps").value) || null,
+    heartP: parseFloat(document.getElementById("heartP").value) || null,
     cholesterol: parseFloat(document.getElementById("cholesterol").value) || null,
     notes: document.getElementById("notes").value || "",
   };
@@ -181,7 +183,7 @@ const charts = {
   water: new Chart(document.getElementById("waterChart"), { type: "line", data: { labels: [], datasets: [{ label: "Water %", data: [], borderColor: "teal" }] } }),
   fat: new Chart(document.getElementById("fatChart"), { type: "line", data: { labels: [], datasets: [{ label: "Fat %", data: [], borderColor: "brown" }] } }),
   bone: new Chart(document.getElementById("boneChart"), { type: "line", data: { labels: [], datasets: [{ label: "Bone Mass", data: [], borderColor: "gray" }] } }),
-  pulse: new Chart(document.getElementById("pulseChart"), { type: "line", data: { labels: [], datasets: [{ label: "Pulse", data: [], borderColor: "pink" }] }, metric: "pulse" }),
+  pulse: new Chart(document.getElementById("pulseChart"), { type: "line", data: { labels: [], datasets: [{ label: "RHR", data: [], borderColor: "pink" }] }, metric: "pulse" }),
   bp: new Chart(document.getElementById("bpChart"), {
     type: "line",
     data: {
@@ -252,7 +254,7 @@ function updateCharts() {
 
   charts.steps.data.labels = getMetricLabels("steps");
   charts.steps.data.datasets[0].data = getMetricData("steps").map((e) => e.steps);
-
+  
   charts.cholesterol.data.labels = getMetricLabels("cholesterol");
   charts.cholesterol.data.datasets[0].data = getMetricData("cholesterol").map((e) => e.cholesterol);
 
@@ -349,6 +351,7 @@ function buildDataTable() {
       <td>${row.bpDia ?? ""}</td>
       <td>${row.cholesterol ?? ""}</td>
       <td>${row.steps ?? ""}</td>
+      <td>${row.heartP ?? ""}</td>
       <td>${row.notes ?? ""}</td>
     `;
     tr.addEventListener("click", () => {
@@ -365,6 +368,7 @@ function buildDataTable() {
       document.getElementById("bpSys").value = row.bpSys ?? "";
       document.getElementById("bpDia").value = row.bpDia ?? "";
       document.getElementById("steps").value = row.steps ?? "";
+      document.getElementById("heartP").value = row.heartP ?? "";
       document.getElementById("cholesterol").value = row.cholesterol ?? "";
       document.getElementById("notes").value = row.notes ?? "";
 

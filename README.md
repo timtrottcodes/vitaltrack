@@ -15,7 +15,8 @@ It allows you to log, visualize, and export your health data locally, with no se
   - Water %
   - Fat %
   - Bone Mass
-  - Pulse
+  - Pulse (Resting Heart Rate)
+  - Heart Points (From Google Fit)
   - Blood Pressure (systolic & diastolic)
   - Daily Steps
 - 📊 Interactive charts for each metric (powered by Chart.js)
